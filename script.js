@@ -93,8 +93,7 @@ if (revealElements.length > 0) {
 
   revealElements.forEach(el => revealObserver.observe(el));
 }
-
-/* ===== ANIMATED COUNTER (FIXED) ===== */
+/* ===== ANIMATED COUNTER (EXTRA SENSITIVE) ===== */
 const counters = document.querySelectorAll('.counter');
 
 if (counters.length > 0) {
@@ -102,40 +101,32 @@ if (counters.length > 0) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const counter = entry.target;
+        // This looks for the number inside data-target="..."
         const target = parseInt(counter.getAttribute('data-target'), 10) || 0;
-        const duration = 1500;
-        const stepTime = 16;
-        const totalSteps = Math.ceil(duration / stepTime);
-        const increment = target / totalSteps;
-        let current = 0;
-        let step = 0;
-
-        counter.innerText = '0';
-
+        
+        let count = 0;
         const updateCount = () => {
-          step++;
-          current += increment;
-
-          if (step >= totalSteps) {
-            counter.innerText = target.toLocaleString();
+          const increment = target / 50; // How fast it counts
+          if (count < target) {
+            count += increment;
+            counter.innerText = Math.ceil(count).toLocaleString();
+            setTimeout(updateCount, 30);
           } else {
-            counter.innerText = Math.floor(current).toLocaleString();
-            requestAnimationFrame(updateCount);
+            counter.innerText = target.toLocaleString();
           }
         };
 
-        requestAnimationFrame(updateCount);
+        updateCount();
         observer.unobserve(counter);
       }
     });
-  }, { threshold: 0.4 });
+  }, { threshold: 0.1 }); // Starts when only 10% of the bar is visible
 
   counters.forEach(counter => {
     counter.innerText = '0';
     counterObserver.observe(counter);
   });
 }
-
 /* ===== ANIMATED SKILL BARS ===== */
 const skillBars = document.querySelectorAll('.skill-bar-fill');
 
